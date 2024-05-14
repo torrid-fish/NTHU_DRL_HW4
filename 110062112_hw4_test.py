@@ -60,11 +60,8 @@ class PolicyNetworkDDPG(nn.Module):
 class Agent(object):
     def __init__(self):
         self.action_space = gym.spaces.Box(low=0, high=1, shape=(22,), dtype=np.float32)
-        self.counter = 0
         self.model = PolicyNetworkDDPG(action_space=self.action_space, stack_frame=1)
         self.model.load_state_dict(torch.load("110062112_hw4_data", map_location=torch.device('cpu')))
-        self.cnt = 0
-        self.last_action = None
 
     def obs_preprocess(self, observation):
         # Convert observation to a vector
@@ -96,10 +93,5 @@ class Agent(object):
         return torch.tensor(flattened, dtype=torch.float32)
 
     def act(self, observation):
-        if self.cnt == 0:
-            action = self.model(self.obs_preprocess(observation)).detach().numpy()
-            self.last_action = action
-        
-        action = self.last_action
-        self.cnt = 0 if self.cnt == 4 else self.cnt + 1
+        action = self.model(self.obs_preprocess(observation)).detach().numpy()
         return action[0]
